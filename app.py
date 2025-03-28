@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-import os
 
 # 🔥 CSS Styling for Website-Like Design
 st.markdown("""
@@ -44,14 +43,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🔥 Load Dataset with Error Handling
+# 🔥 Load Dataset from GitHub
 @st.cache_data
-def load_data(file_path):
-    if os.path.exists(file_path):
-        df = pd.read_csv(file_path)
+def load_data_from_github(url):
+    try:
+        df = pd.read_csv(url)
         return df
-    else:
-        st.error(f"❌ CSV file not found: `{file_path}`")
+    except Exception as e:
+        st.error(f"❌ Failed to load data from GitHub: {e}")
         return pd.DataFrame()
 
 # 🔥 Train Model
@@ -82,57 +81,47 @@ status_mapping = {
 # 🔥 Main Function
 def main():
     st.markdown("<div class='header'><h1>🛠️ Rope Safety Prediction System</h1></div>", unsafe_allow_html=True)
-
     st.markdown("<div class='main-container'>", unsafe_allow_html=True)
 
-    # Upload CSV File
-    uploaded_file = st.file_uploader("📄 Upload CSV file", type=["csv"])
-    
-    if uploaded_file:
-        file_path = "uploaded_file.csv"
-        
-        # Save uploaded file
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getvalue())
+    # 🔥 GitHub CSV URL
+    github_url = "https://raw.githubusercontent.com/frontend-fuel/py/main/rope_ml_training_dataset.csv"
 
-        df = load_data(file_path)
+    # Load dataset
+    df = load_data_from_github(github_url)
 
-        if not df.empty and "Prediction" in df.columns:
-            model, accuracy = train_model(df)
+    if not df.empty and "Prediction" in df.columns:
+        model, accuracy = train_model(df)
 
-            if model:
-                st.success(f"✅ Model trained successfully with {accuracy * 100:.2f}% accuracy!")
+        if model:
+            st.success(f"✅ Model trained successfully with {accuracy * 100:.2f}% accuracy!")
 
-                # 🔥 User Input for Features
-                st.subheader("🔍 Enter Features:")
-                col1, col2, col3, col4 = st.columns(4)
-                feature_1 = col1.number_input("Feature 1", min_value=0.0, max_value=100.0, step=0.1)
-                feature_2 = col2.number_input("Feature 2", min_value=0.0, max_value=100.0, step=0.1)
-                feature_3 = col3.number_input("Feature 3", min_value=0.0, max_value=100.0, step=0.1)
-                feature_4 = col4.number_input("Feature 4", min_value=0.0, max_value=100.0, step=0.1)
+            # 🔥 User Input for Features
+            st.subheader("🔍 Enter Features:")
+            col1, col2, col3, col4 = st.columns(4)
+            feature_1 = col1.number_input("Feature 1", min_value=0.0, max_value=100.0, step=0.1)
+            feature_2 = col2.number_input("Feature 2", min_value=0.0, max_value=100.0, step=0.1)
+            feature_3 = col3.number_input("Feature 3", min_value=0.0, max_value=100.0, step=0.1)
+            feature_4 = col4.number_input("Feature 4", min_value=0.0, max_value=100.0, step=0.1)
 
-                if st.button("🔍 Predict", key="predict_btn"):
-                    features = np.array([[feature_1, feature_2, feature_3, feature_4]])
-                    prediction = model.predict(features)[0]
-                    response = status_mapping[prediction]
+            if st.button("🔍 Predict", key="predict_btn"):
+                features = np.array([[feature_1, feature_2, feature_3, feature_4]])
+                prediction = model.predict(features)[0]
+                response = status_mapping[prediction]
 
-                    # Display Prediction Result
-                    st.markdown(f"""
-                        <div style='background-color:{response['color']}; padding:20px; border-radius:10px; text-align:center;'>
-                            <h2 style='color:white;'>Prediction: {response['status']}</h2>
-                            <h3 style='color:white;'>{response['emoji']} Safety Level</h3>
-                        </div>
-                    """, unsafe_allow_html=True)
+                # Display Prediction Result
+                st.markdown(f"""
+                    <div style='background-color:{response['color']}; padding:20px; border-radius:10px; text-align:center;'>
+                        <h2 style='color:white;'>Prediction: {response['status']}</h2>
+                        <h3 style='color:white;'>{response['emoji']} Safety Level</h3>
+                    </div>
+                """, unsafe_allow_html=True)
 
-            else:
-                st.error("⚠️ Model training failed.")
         else:
-            st.error("❌ Invalid CSV format. Make sure it contains the 'Prediction' column.")
+            st.error("⚠️ Model training failed.")
     else:
-        st.info("📤 Please upload a CSV file to proceed.")
+        st.error("❌ Invalid CSV format or GitHub URL.")
 
     st.markdown("</div>", unsafe_allow_html=True)
-
     st.markdown("<div class='footer'>🚀 Rope Safety Prediction System © 2025</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
