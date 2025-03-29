@@ -5,23 +5,30 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-# 🔥 CSS Styling for Website-Like Design
+# 🔥 Full-Screen and Background Styling
 st.markdown("""
     <style>
+        body, .main-container {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+        }
         .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             padding: 40px;
-            background: #f9f9f9;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             border-radius: 10px;
         }
         .header {
             color: white;
-            background: #007BFF;
-            padding: 20px;
             text-align: center;
+            padding: 30px;
             border-radius: 10px 10px 0 0;
+            width: 100%;
         }
         .footer {
             text-align: center;
@@ -73,15 +80,14 @@ def train_model(df):
 
 # 🔥 Status Mapping
 status_mapping = {
-    0: {"status": "✅ All is well", "color": "#28a745", "emoji": "🟢"},
-    1: {"status": "⚠️ Medium risk", "color": "#ffc107", "emoji": "🟡"},
-    2: {"status": "🚨 High Danger", "color": "#dc3545", "emoji": "🔴"},
+    0: {"status": "✅ All is well", "color": "#28a745", "emoji": "🟢", "bg": "#d4edda"},
+    1: {"status": "⚠️ Medium risk", "color": "#ffc107", "emoji": "🟡", "bg": "#fff3cd"},
+    2: {"status": "🚨 High Danger", "color": "#dc3545", "emoji": "🔴", "bg": "#f8d7da"},
 }
 
 # 🔥 Main Function
 def main():
     st.markdown("<div class='header'><h1>🛠️ Rope Safety Prediction System</h1></div>", unsafe_allow_html=True)
-    st.markdown("<div class='main-container'>", unsafe_allow_html=True)
 
     # 🔥 GitHub CSV URL
     github_url = "https://raw.githubusercontent.com/frontend-fuel/py/main/rope_ml_training_dataset.csv"
@@ -108,6 +114,19 @@ def main():
                 prediction = model.predict(features)[0]
                 response = status_mapping[prediction]
 
+                # 🔥 Dynamic Background Color Change
+                bg_color = response["bg"]
+                st.markdown(
+                    f"""
+                    <style>
+                        .main-container {{
+                            background: {bg_color};
+                        }}
+                    </style>
+                    """,
+                    unsafe_allow_html=True
+                )
+
                 # Display Prediction Result
                 st.markdown(f"""
                     <div style='background-color:{response['color']}; padding:20px; border-radius:10px; text-align:center;'>
@@ -121,8 +140,7 @@ def main():
     else:
         st.error("❌ Invalid CSV format or GitHub URL.")
 
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("<div class='footer'>🚀 Rope Safety Prediction System © 2025</div>", unsafe_allow_html=True)
+    st.markdown("<div class='footer'>🚀 MECHANICAL MARVELS - Rope Safety Prediction System © 2025</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
